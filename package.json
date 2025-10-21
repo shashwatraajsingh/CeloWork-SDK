@@ -1,0 +1,33 @@
+{
+  "name": "celowork-sdk",
+  "version": "0.1.0",
+  "description": "A drop-in developer toolkit for building decentralized freelance and gig marketplaces on Celo",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "compile": "cd contracts && npx hardhat compile",
+    "deploy": "cd contracts && npx hardhat run scripts/deploy.ts --network alfajores",
+    "demo": "cd demo && npm start"
+  },
+  "keywords": [
+    "celo",
+    "freelance",
+    "escrow",
+    "web3",
+    "blockchain",
+    "gig-economy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0"
+  },
+  "dependencies": {
+    "ethers": "^6.9.0"
+  }
+}

@@ -1,0 +1,14 @@
+contracts/
+demo/
+docs/
+*.test.ts
+*.test.js
+.env
+.env.example
+tsconfig.json
+.git/
+.gitignore
+node_modules/
+src/
+*.md
+!README.md
