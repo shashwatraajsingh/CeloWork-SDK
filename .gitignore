@@ -7,3 +7,7 @@ artifacts/
 typechain-types/
 coverage/
 .DS_Store
+QUICKSTART.md
+DEPLOYMENT.md
+MILESTONE-1-COMPLETE.md
+
