@@ -35,7 +35,10 @@ export const ESCROW_ABI = [
 export function getContractAddress(network: string): string {
   const address = CONTRACT_ADDRESSES[network];
   if (!address) {
-    throw new Error(`Contract not deployed on network: ${network}`);
+    throw new Error(
+      `Contract not deployed on network: ${network}. ` +
+      `Please deploy the contract first or provide a custom contract address in SDK config.`
+    );
   }
   return address;
 }

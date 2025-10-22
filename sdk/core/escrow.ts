@@ -9,15 +9,39 @@ import { ESCROW_ABI, getContractAddress } from "../config/contracts";
 
 export class EscrowManager {
   private auth: Auth;
-  private contract: ethers.Contract;
+  private contract?: ethers.Contract;
   private network: string;
+  private contractAddress?: string;
 
   constructor(auth: Auth, network: string, contractAddress?: string) {
     this.auth = auth;
     this.network = network;
+    this.contractAddress = contractAddress;
 
-    const address = contractAddress || getContractAddress(network);
-    this.contract = new ethers.Contract(address, ESCROW_ABI, auth.getSigner());
+    // Only initialize contract if address is provided
+    if (contractAddress) {
+      this.contract = new ethers.Contract(contractAddress, ESCROW_ABI, auth.getSigner());
+    } else {
+      // Try to get default address, but don't throw if not available
+      try {
+        const address = getContractAddress(network);
+        this.contract = new ethers.Contract(address, ESCROW_ABI, auth.getSigner());
+      } catch (error) {
+        // Contract not deployed yet, will be initialized later
+        this.contract = undefined;
+      }
+    }
+  }
+
+  /**
+   * Check if contract is initialized
+   */
+  private ensureContract(): void {
+    if (!this.contract) {
+      throw new Error(
+        'Escrow contract not initialized. Please deploy the contract or provide a contract address.'
+      );
+    }
   }
 
   /**
@@ -27,6 +51,8 @@ export class EscrowManager {
     freelancer: string,
     milestones: Milestone[]
   ): Promise<{ escrowId: number; receipt: TransactionReceipt }> {
+    this.ensureContract();
+    
     if (!ethers.isAddress(freelancer)) {
       throw new Error("Invalid freelancer address");
     }
@@ -39,7 +65,7 @@ export class EscrowManager {
     const amounts = milestones.map((m) => ethers.parseEther(m.amount));
     const totalAmount = amounts.reduce((sum, amount) => sum + amount, 0n);
 
-    const tx = await this.contract.createEscrow(descriptions, amounts, {
+    const tx = await this.contract!.createEscrow(descriptions, amounts, {
       value: totalAmount,
     });
 
@@ -66,12 +92,13 @@ export class EscrowManager {
    * Get escrow details by ID
    */
   async getEscrow(escrowId: number): Promise<Escrow> {
-    const escrowData = await this.contract.getEscrow(escrowId);
-    const milestoneCount = await this.contract.getMilestoneCount(escrowId);
+    this.ensureContract();
+    const escrowData = await this.contract!.getEscrow(escrowId);
+    const milestoneCount = await this.contract!.getMilestoneCount(escrowId);
 
     const milestones: Milestone[] = [];
     for (let i = 0; i < Number(milestoneCount); i++) {
-      const milestoneData = await this.contract.getMilestone(escrowId, i);
+      const milestoneData = await this.contract!.getMilestone(escrowId, i);
       milestones.push({
         description: milestoneData.description,
         amount: ethers.formatEther(milestoneData.amount),
@@ -100,7 +127,8 @@ export class EscrowManager {
     escrowId: number,
     milestoneIndex: number
   ): Promise<TransactionReceipt> {
-    const tx = await this.contract.submitMilestone(escrowId, milestoneIndex);
+    this.ensureContract();
+    const tx = await this.contract!.submitMilestone(escrowId, milestoneIndex);
     const receipt = await tx.wait();
 
     return {
@@ -118,7 +146,8 @@ export class EscrowManager {
     escrowId: number,
     milestoneIndex: number
   ): Promise<TransactionReceipt> {
-    const tx = await this.contract.approveMilestone(escrowId, milestoneIndex);
+    this.ensureContract();
+    const tx = await this.contract!.approveMilestone(escrowId, milestoneIndex);
     const receipt = await tx.wait();
 
     return {
@@ -136,7 +165,8 @@ export class EscrowManager {
     escrowId: number,
     milestoneIndex: number
   ): Promise<TransactionReceipt> {
-    const tx = await this.contract.rejectMilestone(escrowId, milestoneIndex);
+    this.ensureContract();
+    const tx = await this.contract!.rejectMilestone(escrowId, milestoneIndex);
     const receipt = await tx.wait();
 
     return {
@@ -151,7 +181,8 @@ export class EscrowManager {
    * Raise a dispute for an escrow
    */
   async raiseDispute(escrowId: number): Promise<TransactionReceipt> {
-    const tx = await this.contract.raiseDispute(escrowId);
+    this.ensureContract();
+    const tx = await this.contract!.raiseDispute(escrowId);
     const receipt = await tx.wait();
 
     return {
@@ -166,7 +197,8 @@ export class EscrowManager {
    * Cancel an escrow and refund client
    */
   async cancelEscrow(escrowId: number): Promise<TransactionReceipt> {
-    const tx = await this.contract.cancelEscrow(escrowId);
+    this.ensureContract();
+    const tx = await this.contract!.cancelEscrow(escrowId);
     const receipt = await tx.wait();
 
     return {
@@ -181,8 +213,9 @@ export class EscrowManager {
    * Get all escrows for a client
    */
   async getClientEscrows(clientAddress?: string): Promise<number[]> {
+    this.ensureContract();
     const address = clientAddress || (await this.auth.getAddress());
-    const escrowIds = await this.contract.getClientEscrows(address);
+    const escrowIds = await this.contract!.getClientEscrows(address);
     return escrowIds.map((id: bigint) => Number(id));
   }
 
@@ -190,8 +223,9 @@ export class EscrowManager {
    * Get all escrows for a freelancer
    */
   async getFreelancerEscrows(freelancerAddress?: string): Promise<number[]> {
+    this.ensureContract();
     const address = freelancerAddress || (await this.auth.getAddress());
-    const escrowIds = await this.contract.getFreelancerEscrows(address);
+    const escrowIds = await this.contract!.getFreelancerEscrows(address);
     return escrowIds.map((id: bigint) => Number(id));
   }
 
@@ -199,19 +233,22 @@ export class EscrowManager {
    * Listen to escrow events
    */
   onEscrowCreated(callback: (escrowId: number, client: string, freelancer: string, amount: string) => void) {
-    this.contract.on("EscrowCreated", (escrowId, client, freelancer, amount) => {
+    this.ensureContract();
+    this.contract!.on("EscrowCreated", (escrowId, client, freelancer, amount) => {
       callback(Number(escrowId), client, freelancer, ethers.formatEther(amount));
     });
   }
 
   onMilestoneApproved(callback: (escrowId: number, milestoneIndex: number, amount: string) => void) {
-    this.contract.on("MilestoneApproved", (escrowId, milestoneIndex, amount) => {
+    this.ensureContract();
+    this.contract!.on("MilestoneApproved", (escrowId, milestoneIndex, amount) => {
       callback(Number(escrowId), Number(milestoneIndex), ethers.formatEther(amount));
     });
   }
 
   onEscrowCompleted(callback: (escrowId: number) => void) {
-    this.contract.on("EscrowCompleted", (escrowId) => {
+    this.ensureContract();
+    this.contract!.on("EscrowCompleted", (escrowId) => {
       callback(Number(escrowId));
     });
   }

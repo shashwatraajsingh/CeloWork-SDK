@@ -12,7 +12,11 @@ A drop-in developer toolkit for building decentralized freelance and gig marketp
 
 ## Project Status
 
-**Current Milestone**: Milestone 1 - Core SDK & Contract Setup
+**Completed Milestones:**
+- ✅ Milestone 1 - Core SDK & Contract Setup
+- ✅ Milestone 2 - Self Protocol Integration
+
+**Current Status:** Ready for deployment and testing
 
 ## Installation
 

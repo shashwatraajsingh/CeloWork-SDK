@@ -133,5 +133,14 @@ export interface SelfProtocolIdentity {
   isVerified: boolean;
   verificationLevel?: "basic" | "advanced" | "premium";
   verifiedAt?: number;
-  attributes?: Record<string, any>;
+  expiresAt?: number;
+  score?: number; // 0-100 humanity score
+  attributes?: {
+    hasEmail?: boolean;
+    hasPhone?: boolean;
+    hasGovernmentId?: boolean;
+    hasBiometric?: boolean;
+    hasLinkedAccounts?: boolean;
+  };
+  metadata?: Record<string, any>;
 }

@@ -7,17 +7,20 @@ import { Auth } from "./core/auth";
 import { EscrowManager } from "./core/escrow";
 import { JobManager } from "./core/jobs";
 import { ReputationManager } from "./core/reputation";
+import { SelfProtocolManager } from "./core/self-protocol";
 import { SDKConfig } from "./types";
 
 export * from "./types";
 export * from "./config/networks";
 export * from "./config/contracts";
+export { VerificationLevel } from "./core/self-protocol";
 
 export class CeloWorkSDK {
   public auth: Auth;
   public escrow: EscrowManager;
   public jobs: JobManager;
   public reputation: ReputationManager;
+  public selfProtocol: SelfProtocolManager;
 
   private config: SDKConfig;
 
@@ -26,8 +29,9 @@ export class CeloWorkSDK {
 
     // Initialize core modules
     this.auth = new Auth(config);
+    this.selfProtocol = new SelfProtocolManager(this.auth, true); // Mock mode enabled by default
     this.escrow = new EscrowManager(this.auth, config.network, config.contractAddress);
-    this.jobs = new JobManager(this.auth);
+    this.jobs = new JobManager(this.auth, this.selfProtocol);
     this.reputation = new ReputationManager(this.auth);
   }
 

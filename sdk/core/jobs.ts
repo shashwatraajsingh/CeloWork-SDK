@@ -5,14 +5,41 @@
 
 import { Job, JobStatus, CreateJobParams } from "../types";
 import { Auth } from "./auth";
+import { SelfProtocolManager, VerificationLevel } from "./self-protocol";
+
+export interface JobManagerConfig {
+  requireVerification?: boolean;
+  minVerificationLevel?: VerificationLevel;
+}
 
 export class JobManager {
   private auth: Auth;
   private jobs: Map<string, Job>;
+  private selfProtocol?: SelfProtocolManager;
+  private config: JobManagerConfig;
 
-  constructor(auth: Auth) {
+  constructor(auth: Auth, selfProtocol?: SelfProtocolManager, config?: JobManagerConfig) {
     this.auth = auth;
     this.jobs = new Map();
+    this.selfProtocol = selfProtocol;
+    this.config = config || {
+      requireVerification: false,
+      minVerificationLevel: VerificationLevel.Basic,
+    };
+  }
+
+  /**
+   * Set Self Protocol manager for verification
+   */
+  setSelfProtocol(selfProtocol: SelfProtocolManager): void {
+    this.selfProtocol = selfProtocol;
+  }
+
+  /**
+   * Configure verification requirements
+   */
+  setVerificationConfig(config: JobManagerConfig): void {
+    this.config = { ...this.config, ...config };
   }
 
   /**
@@ -20,6 +47,22 @@ export class JobManager {
    */
   async createJob(params: CreateJobParams): Promise<Job> {
     const address = await this.auth.getAddress();
+
+    // Check verification if required
+    if (this.config.requireVerification && this.selfProtocol) {
+      const isVerified = await this.selfProtocol.isVerified(
+        address,
+        this.config.minVerificationLevel
+      );
+
+      if (!isVerified) {
+        throw new Error(
+          `User must be verified at ${this.config.minVerificationLevel} level to create jobs. ` +
+          `Please complete verification using sdk.selfProtocol.requestVerification()`
+        );
+      }
+    }
+
     const jobId = this.generateJobId();
     const now = Date.now();
 
