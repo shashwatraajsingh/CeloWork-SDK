@@ -1,9 +1,10 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
 
 async function main() {
-  console.log("🚀 Deploying CeloWork Escrow Contract to Celo Alfajores...\n");
+  const networkName = network.name;
+  console.log(`🚀 Deploying CeloWork Escrow Contract to ${networkName}...\n`);
 
   const [deployer] = await ethers.getSigners();
   console.log("Deploying with account:", deployer.address);
@@ -22,7 +23,7 @@ async function main() {
 
   // Save deployment info
   const deploymentInfo = {
-    network: "alfajores",
+    network: networkName,
     contractName: "CeloWorkEscrow",
     contractAddress: escrowAddress,
     deployer: deployer.address,
@@ -35,16 +36,22 @@ async function main() {
     fs.mkdirSync(deploymentsDir, { recursive: true });
   }
 
-  const deploymentPath = path.join(deploymentsDir, "alfajores.json");
+  const deploymentPath = path.join(deploymentsDir, `${networkName}.json`);
   fs.writeFileSync(deploymentPath, JSON.stringify(deploymentInfo, null, 2));
 
   console.log("\n📝 Deployment info saved to:", deploymentPath);
-  console.log("\n🔗 View on Celoscan:");
-  console.log(`https://alfajores.celoscan.io/address/${escrowAddress}`);
+  console.log("\n🔗 View on block explorer:");
+  if (networkName === "alfajores") {
+    console.log(`https://alfajores.celoscan.io/address/${escrowAddress}`);
+  } else if (networkName === "celoSepolia") {
+    console.log(`https://sepolia.celoscan.io/address/${escrowAddress}`);
+  } else if (networkName === "celo") {
+    console.log(`https://celoscan.io/address/${escrowAddress}`);
+  }
   console.log("\n✨ Deployment complete!");
   console.log("\n📋 Next steps:");
-  console.log("1. Verify the contract: npm run verify");
-  console.log("2. Update SDK config with contract address");
+  console.log("1. Update SDK config with contract address:", escrowAddress);
+  console.log("2. Rebuild SDK: npm run build");
   console.log("3. Test the contract with demo app");
 }
 

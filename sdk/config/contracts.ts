@@ -4,6 +4,7 @@
 
 export const CONTRACT_ADDRESSES: Record<string, string> = {
   alfajores: "", // Will be populated after deployment
+  celoSepolia: "0x881CE3f25E8383d276D78Cdc454BFa15D34a5AF6", // Deployed on Celo Sepolia
   celo: "", // For mainnet deployment
   localhost: "", // For local testing
 };

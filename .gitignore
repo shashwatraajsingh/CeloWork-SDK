@@ -7,7 +7,18 @@ artifacts/
 typechain-types/
 coverage/
 .DS_Store
+
+# Temporary documentation files
 QUICKSTART.md
 DEPLOYMENT.md
 MILESTONE-1-COMPLETE.md
+MILESTONE-2-COMPLETE.md
+DEPLOYMENT-SUCCESS.md
 
+# Environment files
+env
+.env.local
+.env.*.local
+
+# Deployment files
+contracts/deployments/

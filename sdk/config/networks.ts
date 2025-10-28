@@ -26,6 +26,17 @@ export const NETWORKS: Record<string, NetworkConfig> = {
       decimals: 18,
     },
   },
+  celoSepolia: {
+    name: "Celo Sepolia Testnet",
+    chainId: 11142220,
+    rpcUrl: "https://celo-sepolia.drpc.org",
+    explorerUrl: "https://sepolia.celoscan.io",
+    nativeCurrency: {
+      name: "Celo",
+      symbol: "CELO",
+      decimals: 18,
+    },
+  },
   celo: {
     name: "Celo Mainnet",
     chainId: 42220,

@@ -6,6 +6,7 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "deploy": "hardhat run scripts/deploy.ts --network alfajores",
+    "deploy:sepolia": "hardhat run scripts/deploy.ts --network celoSepolia",
     "verify": "hardhat verify --network alfajores"
   },
   "devDependencies": {
