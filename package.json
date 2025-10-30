@@ -1,15 +1,21 @@
 {
   "name": "celowork-sdk",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A drop-in developer toolkit for building decentralized freelance and gig marketplaces on Celo",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "jest",
     "compile": "cd contracts && npx hardhat compile",
     "deploy": "cd contracts && npx hardhat run scripts/deploy.ts --network alfajores",
-    "demo": "cd demo && npm start"
+    "demo": "cd demo && npm start",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "celo",
@@ -17,10 +23,22 @@
     "escrow",
     "web3",
     "blockchain",
-    "gig-economy"
+    "gig-economy",
+    "smart-contracts",
+    "decentralized",
+    "marketplace",
+    "crypto-payments"
   ],
-  "author": "",
+  "author": "Shashwat Raaj Singh",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shashwatraajsingh/celowork-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shashwatraajsingh/celowork-sdk/issues"
+  },
+  "homepage": "https://github.com/shashwatraajsingh/celowork-sdk#readme",
   "devDependencies": {
     "@types/node": "^20.10.0",
     "typescript": "^5.3.0",
