@@ -33,7 +33,7 @@ npm install celowork-sdk
 ### Option 2: From GitHub
 
 ```bash
-npm install git+https://github.com/shashwatraajsingh/celowork-sdk.git
+npm install https://github.com/shashwatraajsingh/celowork-sdk.git
 ```
 
 ### Option 3: Local Installation
